@@ -2,7 +2,7 @@ import { APIGatewayEvent } from "aws-lambda";
 import { buildResponse } from "../../utils";
 import { PRODUCTS_MOCK } from "../products.constants";
 
-export const getProductById = async (event: APIGatewayEvent) => {
+export const getProductsById = async (event: APIGatewayEvent) => {
   const productId = event.pathParameters?.["productId"];
 
   const product = PRODUCTS_MOCK.find((product) => product.id === productId);

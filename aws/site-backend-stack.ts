@@ -12,21 +12,21 @@ export class SiteBackendStack extends Stack {
 
     const getProductsFunction = new lambdaNodeJs.NodejsFunction(
       this,
-      "GetProductsFunction",
+      "GetProductsListFunction",
       {
         runtime: Runtime.NODEJS_18_X,
-        entry: "src/products/handlers/getProducts.ts",
-        handler: "getProducts",
+        entry: "src/products/handlers/getProductsList.ts",
+        handler: "getProductsList",
       },
     );
 
     const getProductByIdFunction = new lambdaNodeJs.NodejsFunction(
       this,
-      "GetProductByIdFunction",
+      "GetProductsByIdFunction",
       {
         runtime: Runtime.NODEJS_18_X,
-        entry: "src/products/handlers/getProductById.ts",
-        handler: "getProductById",
+        entry: "src/products/handlers/getProductsById.ts",
+        handler: "getProductsById",
       },
     );
 
@@ -46,7 +46,7 @@ export class SiteBackendStack extends Stack {
       path: "/products",
       methods: [HttpMethod.GET],
       integration: new HttpLambdaIntegration(
-        "GetProductsIntegration",
+        "GetProductsListIntegration",
         getProductsFunction,
       ),
     });
@@ -55,7 +55,7 @@ export class SiteBackendStack extends Stack {
       path: "/products/{productId}",
       methods: [HttpMethod.GET],
       integration: new HttpLambdaIntegration(
-        "GetProductByIdIntegration",
+        "GetProductsByIdIntegration",
         getProductByIdFunction,
       ),
     });

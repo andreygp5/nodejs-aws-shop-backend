@@ -1,10 +1,10 @@
 import { PRODUCTS_MOCK } from "../products.constants";
 import { buildResponse } from "../../utils";
-import { getProducts } from "../handlers/getProducts";
+import { getProductsList } from "../handlers/getProductsList";
 
-describe("GetProductById", () => {
+describe("GetProductsList", () => {
   it("should return all products", async () => {
-    const handlerResp = await getProducts();
+    const handlerResp = await getProductsList();
     expect(handlerResp).toEqual(buildResponse(200, PRODUCTS_MOCK));
   });
 });
