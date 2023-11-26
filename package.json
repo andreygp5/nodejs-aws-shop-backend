@@ -5,7 +5,8 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "deploy": "cdk bootstrap && cdk deploy"
+    "deploy": "cdk bootstrap && cdk deploy",
+    "seed-product-db": "PRODUCT_TABLE_NAME='Product' STOCK_TABLE_NAME='Stock' ts-node --prefer-ts-exts src/product/scripts/product.seed.ts"
   },
   "devDependencies": {
     "@types/jest": "^23.3.12",

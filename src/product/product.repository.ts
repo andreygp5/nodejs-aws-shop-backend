@@ -64,6 +64,7 @@ export class ProductRepository extends AbstractRepository {
   public async createProduct(
     productDto: ProductDto
   ): Promise<Product | undefined> {
+    console.log(productDto)
     const productDtoValidationErrors = await this.getProductDtoValidationErrors(
       productDto
     )
@@ -77,7 +78,7 @@ export class ProductRepository extends AbstractRepository {
     await this.dynamoDBClient.send(
       new PutCommand({
         TableName: this.TABLE_NAME,
-        Item: { id: productId, ...omit(productDto, 'count') },
+        Item: { ...omit(productDto, 'count'), id: productId },
       })
     )
 

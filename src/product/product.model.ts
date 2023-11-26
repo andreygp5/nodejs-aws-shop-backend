@@ -15,6 +15,6 @@ export interface ProductTable extends Omit<Product, 'count'> {}
 export const productDtoSchema: ObjectSchema<ProductDto> = object({
   title: string().required().defined(),
   description: string(),
-  price: number().required().positive().defined(),
-  count: number().required().positive().defined(),
+  price: number().required().integer().min(0).defined(),
+  count: number().required().integer().min(0).defined(),
 }).noUnknown(true)
