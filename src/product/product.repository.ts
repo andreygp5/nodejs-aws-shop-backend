@@ -4,7 +4,12 @@ import {
   productDtoSchema,
   ProductTable,
 } from './product.model'
-import { PutCommand, QueryCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
+import {
+  PutCommand,
+  QueryCommand,
+  ScanCommand,
+  TransactWriteCommand,
+} from '@aws-sdk/lib-dynamodb'
 import { getEnvironmentVariables, getUniqueId } from '../utils'
 import { ValidationError } from 'yup'
 import { AbstractRepository } from '../abstract-repository'
@@ -64,7 +69,6 @@ export class ProductRepository extends AbstractRepository {
   public async createProduct(
     productDto: ProductDto
   ): Promise<Product | undefined> {
-    console.log(productDto)
     const productDtoValidationErrors = await this.getProductDtoValidationErrors(
       productDto
     )
@@ -75,17 +79,29 @@ export class ProductRepository extends AbstractRepository {
 
     const productId = getUniqueId()
 
+    new PutCommand({
+      TableName: this.TABLE_NAME,
+      Item: { ...omit(productDto, 'count'), id: productId },
+    })
+
     await this.dynamoDBClient.send(
-      new PutCommand({
-        TableName: this.TABLE_NAME,
-        Item: { ...omit(productDto, 'count'), id: productId },
+      new TransactWriteCommand({
+        TransactItems: [
+          {
+            Put: {
+              TableName: this.TABLE_NAME,
+              Item: { ...omit(productDto, 'count'), id: productId },
+            },
+          },
+          {
+            Put: this.stockRepository.getTransactItemsPut({
+              product_id: productId,
+              count: productDto.count!,
+            }),
+          },
+        ],
       })
     )
-
-    await this.stockRepository.createStock({
-      product_id: productId,
-      count: productDto.count!,
-    })
 
     return this.getProductById(productId)
   }

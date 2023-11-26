@@ -1,4 +1,4 @@
-import { PutCommand, QueryCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
+import { QueryCommand, ScanCommand } from '@aws-sdk/lib-dynamodb'
 import { getEnvironmentVariables } from '../utils'
 import { AbstractRepository } from '../abstract-repository'
 import { StockTable } from './stock.model'
@@ -30,12 +30,10 @@ export class StockRepository extends AbstractRepository {
     )?.Items?.[0] as StockTable
   }
 
-  public async createStock(stock: StockTable): Promise<void> {
-    await this.dynamoDBClient.send(
-      new PutCommand({
-        TableName: this.TABLE_NAME,
-        Item: stock,
-      })
-    )
+  public getTransactItemsPut(stock: StockTable) {
+    return {
+      TableName: this.TABLE_NAME,
+      Item: stock,
+    }
   }
 }
