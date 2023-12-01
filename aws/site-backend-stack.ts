@@ -1,63 +1,82 @@
-import { Stack, StackProps } from "aws-cdk-lib";
-import * as lambdaNodeJs from "aws-cdk-lib/aws-lambda-nodejs";
-import * as apiGateway from "@aws-cdk/aws-apigatewayv2-alpha";
-import { HttpMethod } from "@aws-cdk/aws-apigatewayv2-alpha";
-import { Construct } from "constructs";
-import { Runtime } from "aws-cdk-lib/aws-lambda";
-import { HttpLambdaIntegration } from "@aws-cdk/aws-apigatewayv2-integrations-alpha";
+import { Stack, StackProps } from 'aws-cdk-lib'
+import * as lambdaNodeJs from 'aws-cdk-lib/aws-lambda-nodejs'
+import * as apiGateway from '@aws-cdk/aws-apigatewayv2-alpha'
+import { HttpMethod } from '@aws-cdk/aws-apigatewayv2-alpha'
+import { Construct } from 'constructs'
+import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha'
+import { LAMBDA_SHARED_PROPS } from './site-backend.constants'
 
 export class SiteBackendStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
-    super(scope, id, props);
+    super(scope, id, props)
 
     const getProductsFunction = new lambdaNodeJs.NodejsFunction(
       this,
-      "GetProductsListFunction",
+      'GetProductsListFunction',
       {
-        runtime: Runtime.NODEJS_18_X,
-        entry: "src/products/handlers/getProductsList.ts",
-        handler: "getProductsList",
-      },
-    );
+        ...LAMBDA_SHARED_PROPS,
+        entry: 'src/product/handlers/getProductsList.ts',
+        handler: 'getProductsList',
+      }
+    )
 
     const getProductByIdFunction = new lambdaNodeJs.NodejsFunction(
       this,
-      "GetProductsByIdFunction",
+      'GetProductsByIdFunction',
       {
-        runtime: Runtime.NODEJS_18_X,
-        entry: "src/products/handlers/getProductsById.ts",
-        handler: "getProductsById",
-      },
-    );
+        ...LAMBDA_SHARED_PROPS,
+        entry: 'src/product/handlers/getProductsById.ts',
+        handler: 'getProductsById',
+      }
+    )
+
+    const createProductFunction = new lambdaNodeJs.NodejsFunction(
+      this,
+      'CreateProductFunction',
+      {
+        ...LAMBDA_SHARED_PROPS,
+        entry: 'src/product/handlers/createProduct.ts',
+        handler: 'createProduct',
+      }
+    )
 
     const productsApiGateway = new apiGateway.HttpApi(
       this,
-      "ProductsApiGateway",
+      'ProductsApiGateway',
       {
         corsPreflight: {
-          allowHeaders: ["*"],
+          allowHeaders: ['*'],
           allowMethods: [apiGateway.CorsHttpMethod.ANY],
-          allowOrigins: ["*"],
+          allowOrigins: ['*'],
         },
-      },
-    );
+      }
+    )
 
     productsApiGateway.addRoutes({
-      path: "/products",
+      path: '/products',
       methods: [HttpMethod.GET],
       integration: new HttpLambdaIntegration(
-        "GetProductsListIntegration",
-        getProductsFunction,
+        'GetProductsListIntegration',
+        getProductsFunction
       ),
-    });
+    })
 
     productsApiGateway.addRoutes({
-      path: "/products/{productId}",
+      path: '/products/{productId}',
       methods: [HttpMethod.GET],
       integration: new HttpLambdaIntegration(
-        "GetProductsByIdIntegration",
-        getProductByIdFunction,
+        'GetProductsByIdIntegration',
+        getProductByIdFunction
       ),
-    });
+    })
+
+    productsApiGateway.addRoutes({
+      path: '/products',
+      methods: [HttpMethod.POST],
+      integration: new HttpLambdaIntegration(
+        'CreateProductIntegration',
+        createProductFunction
+      ),
+    })
   }
 }
