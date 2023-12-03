@@ -2,7 +2,7 @@ import { APIGatewayEvent } from 'aws-lambda'
 import { getProductsById } from '../handlers/getProductsById'
 import { PRODUCTS_MOCK } from './product.mock'
 import { ProductRepository } from '../product.repository'
-import { buildResponse } from '../../../../shared/utils'
+import { buildResponse } from '../../utils'
 
 describe('GetProductsById', () => {
   it('should return product by id', async () => {

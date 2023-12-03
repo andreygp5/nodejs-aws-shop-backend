@@ -1,7 +1,7 @@
 import { APIGatewayEvent } from 'aws-lambda'
 import { ProductRepository } from '../product.repository'
 import { ValidationError } from 'yup'
-import { buildResponse, getErrorBody } from '../../../../shared/utils'
+import { buildResponse, getErrorBody } from '../../utils'
 
 export const createProduct = async (event: APIGatewayEvent) => {
   console.log('createProduct: ', event)

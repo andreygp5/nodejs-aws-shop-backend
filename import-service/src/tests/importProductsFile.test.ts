@@ -1,26 +1,21 @@
 import { APIGatewayEvent } from 'aws-lambda'
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { importProductsFile } from '../handlers/importProductsFile'
-import { getEnvironmentVariables } from '../utils'
-import { buildResponse } from '../../../shared/utils'
+import { buildResponse } from '../utils'
 
-jest.mock('@aws-sdk/client-s3', () => {
-  return {
-    S3Client: function() {},
-    PutObjectCommand: function() {
-      return 'test-signed.xlsx'
-    }
-  }
-})
+jest.mock('@aws-sdk/client-s3')
 jest.mock('@aws-sdk/s3-request-presigner', () => {
   return {
-    getEnvironmentVariables: () => {
-      return { BUCKET_NAME: 'TEST_IMPORT' }
+    getSignedUrl: () => {
+      return 'test-signed.xlsx'
     },
   }
 })
 jest.mock('../utils', () => {
+  const originalModule = jest.requireActual('../utils')
+
   return {
+    __esModule: true,
+    ...originalModule,
     getEnvironmentVariables: () => {
       return { BUCKET_NAME: 'TEST_IMPORT' }
     },
