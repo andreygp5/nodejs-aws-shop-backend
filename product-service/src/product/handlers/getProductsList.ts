@@ -1,6 +1,6 @@
-import { buildResponse, getErrorBody } from '../../utils'
 import { ProductRepository } from '../product.repository'
 import { APIGatewayEvent } from 'aws-lambda'
+import { buildResponse, getErrorBody } from '../../../../shared/utils'
 
 export const getProductsList = async (event: APIGatewayEvent) => {
   console.log('getProductsList: ', event)

@@ -1,0 +1,23 @@
+{
+  "name": "import-service",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest --config ../jest.config.js",
+    "deploy": "cdk bootstrap && cdk deploy"
+  },
+  "devDependencies": {
+    "aws-cdk": "2.106.0",
+    "ts-node": "^10.9.1",
+    "typescript": "~5.2.2"
+  },
+  "dependencies": {
+    "@aws-cdk/aws-apigatewayv2-alpha": "^2.113.0-alpha.0",
+    "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.113.0-alpha.0",
+    "@types/aws-lambda": "^8.10.126",
+    "aws-cdk-lib": "2.106.0",
+    "aws-lambda": "^1.0.7",
+    "constructs": "^10.0.0"
+  }
+}
