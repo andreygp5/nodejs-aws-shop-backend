@@ -4,6 +4,7 @@ import * as apiGateway from '@aws-cdk/aws-apigatewayv2-alpha'
 import { HttpMethod } from '@aws-cdk/aws-apigatewayv2-alpha'
 import { Construct } from 'constructs'
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha'
+import { LAMBDA_SHARED_PROPS } from './import-service.constants'
 
 export class ImportServiceStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -13,14 +14,15 @@ export class ImportServiceStack extends Stack {
       this,
       'ImportProductsFileFunction',
       {
-        entry: 'src/product/handlers/getProductsList.ts',
-        handler: 'getProductsList',
+        ...LAMBDA_SHARED_PROPS,
+        entry: './src/handlers/importProductsFile.ts',
+        handler: 'importProductsFile',
       }
     )
 
-    const productsApiGateway = new apiGateway.HttpApi(
+    const importsApiGateway = new apiGateway.HttpApi(
       this,
-      'ProductsApiGateway',
+      'ImportsApiGateway',
       {
         corsPreflight: {
           allowHeaders: ['*'],
@@ -30,30 +32,12 @@ export class ImportServiceStack extends Stack {
       }
     )
 
-    productsApiGateway.addRoutes({
-      path: '/products',
+    importsApiGateway.addRoutes({
+      path: '/import',
       methods: [HttpMethod.GET],
       integration: new HttpLambdaIntegration(
-        'GetProductsListIntegration',
-        getProductsFunction
-      ),
-    })
-
-    productsApiGateway.addRoutes({
-      path: '/products/{productId}',
-      methods: [HttpMethod.GET],
-      integration: new HttpLambdaIntegration(
-        'GetProductsByIdIntegration',
-        getProductByIdFunction
-      ),
-    })
-
-    productsApiGateway.addRoutes({
-      path: '/products',
-      methods: [HttpMethod.POST],
-      integration: new HttpLambdaIntegration(
-        'CreateProductIntegration',
-        createProductFunction
+        'ImportProductsFileIntegration',
+        importProductsFileFunction
       ),
     })
   }
