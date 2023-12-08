@@ -1,8 +1,8 @@
-import { ProxyResult } from 'aws-lambda/trigger/api-gateway-proxy'
-import { EnvironmentVariables } from '../shared/environment.interfaces'
+import { EnvironmentVariables } from './interfaces'
 import { v4 as uuidv4 } from 'uuid'
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb'
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb'
+import { ProxyResult } from 'aws-lambda/trigger/api-gateway-proxy'
 
 export const buildResponse = (status: number, body: any): ProxyResult => {
   return {
