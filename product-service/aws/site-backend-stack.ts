@@ -88,8 +88,20 @@ export class SiteBackendStack extends Stack {
       displayName: 'Create product topic',
     })
 
+    // Notification should be sent for all products
     createProductTopic.addSubscription(
       new EmailSubscription('aglazkov55555@gmail.com')
+    )
+
+    // Notification should be sent only for products with price > 1000
+    createProductTopic.addSubscription(
+      new EmailSubscription('andreygp555@gmail.com', {
+        filterPolicy: {
+          price: sns.SubscriptionFilter.numericFilter({
+            greaterThan: 1000,
+          }),
+        },
+      })
     )
 
     const catalogItemsQueue = new sqs.Queue(this, 'CatalogItemsQueue', {

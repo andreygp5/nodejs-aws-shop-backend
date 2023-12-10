@@ -15,7 +15,7 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
     const snsClient = new SNSClient()
     const productsRepository = new ProductRepository()
 
-    await Promise.all(
+    const createdProducts = await Promise.all(
       event.Records.map(async (record) => {
         console.log('Going to create product: ', record.body)
         return productsRepository.createProduct(
@@ -27,14 +27,24 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
 
     console.log('Products created')
 
-    await snsClient.send(
-      new PublishCommand({
-        Message: 'Products created via the import',
-        TopicArn: getEnvironmentVariables().CREATE_PRODUCT_TOPIC_ARN,
+    await Promise.all(
+      createdProducts.map(async (createdProduct) => {
+        return snsClient.send(
+          new PublishCommand({
+            Message: `Products created via the import. Id: ${createdProduct?.id}`,
+            TopicArn: getEnvironmentVariables().CREATE_PRODUCT_TOPIC_ARN,
+            MessageAttributes: {
+              price: {
+                DataType: 'Number',
+                StringValue: String(createdProduct?.price),
+              },
+            },
+          })
+        )
       })
     )
 
-    console.log('Email notification sent via SNS')
+    console.log('Email notifications sent via SNS')
 
     return buildResponse(200, {})
   } catch (e) {
