@@ -1,12 +1,18 @@
 import { ProductRepository } from '../product.repository'
 import { ValidationError } from 'yup'
-import { buildResponse, getErrorBody } from '../../utils'
+import {
+  buildResponse,
+  getEnvironmentVariables,
+  getErrorBody,
+} from '../../utils'
 import { SQSEvent } from 'aws-lambda'
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns'
 
 export const catalogBatchProcess = async (event: SQSEvent) => {
   console.log('catalogBatchProcess: ', event)
 
   try {
+    const snsClient = new SNSClient()
     const productsRepository = new ProductRepository()
 
     await Promise.all(
@@ -18,6 +24,17 @@ export const catalogBatchProcess = async (event: SQSEvent) => {
         )
       })
     )
+
+    console.log('Products created')
+
+    await snsClient.send(
+      new PublishCommand({
+        Message: 'Products created via the import',
+        TopicArn: getEnvironmentVariables().CREATE_PRODUCT_TOPIC_ARN,
+      })
+    )
+
+    console.log('Email notification sent via SNS')
 
     return buildResponse(200, {})
   } catch (e) {
