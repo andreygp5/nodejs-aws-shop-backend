@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
+    "watch": "cdk watch",
     "test": "jest --roots product-service/src --config ../jest.config.js",
     "deploy": "cdk bootstrap && cdk deploy",
     "seed-product-db": "PRODUCT_TABLE_NAME='Product' STOCK_TABLE_NAME='Stock' ts-node --prefer-ts-exts ./src/product/scripts/product.seed.ts"

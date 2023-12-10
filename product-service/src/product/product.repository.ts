@@ -67,10 +67,12 @@ export class ProductRepository extends AbstractRepository {
   }
 
   public async createProduct(
-    productDto: ProductDto
+    productDto: ProductDto,
+    isStrictValidation = true
   ): Promise<Product | undefined> {
     const productDtoValidationErrors = await this.getProductDtoValidationErrors(
-      productDto
+      productDto,
+      isStrictValidation
     )
 
     if (productDtoValidationErrors) {
@@ -107,10 +109,14 @@ export class ProductRepository extends AbstractRepository {
   }
 
   public async getProductDtoValidationErrors(
-    productDtoObject: any
+    productDtoObject: any,
+    isStrictValidation = true
   ): Promise<ValidationError | undefined> {
     const validationResult = await productDtoSchema
-      .validate(productDtoObject, { strict: true, abortEarly: false })
+      .validate(productDtoObject, {
+        strict: isStrictValidation,
+        abortEarly: false,
+      })
       .catch((e) => e as ValidationError)
 
     if (validationResult instanceof ValidationError) {

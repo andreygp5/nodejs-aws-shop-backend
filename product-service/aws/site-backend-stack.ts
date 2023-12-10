@@ -1,6 +1,8 @@
 import { Stack, StackProps } from 'aws-cdk-lib'
 import * as lambdaNodeJs from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as apiGateway from '@aws-cdk/aws-apigatewayv2-alpha'
+import * as sqs from 'aws-cdk-lib/aws-sqs'
+import * as lambdaEventSources from 'aws-cdk-lib/aws-lambda-event-sources'
 import { HttpMethod } from '@aws-cdk/aws-apigatewayv2-alpha'
 import { Construct } from 'constructs'
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha'
@@ -78,5 +80,23 @@ export class SiteBackendStack extends Stack {
         createProductFunction
       ),
     })
+
+    const catalogBatchProcessFunction = new lambdaNodeJs.NodejsFunction(
+      this,
+      'CatalogBatchProcessFunction',
+      {
+        ...LAMBDA_SHARED_PROPS,
+        entry: 'src/product/handlers/catalogBatchProcess.ts',
+        handler: 'catalogBatchProcess',
+      }
+    )
+
+    const catalogItemsQueue = new sqs.Queue(this, 'CatalogItemsQueue', {
+      queueName: 'CatalogItemsQueue',
+    })
+
+    catalogBatchProcessFunction.addEventSource(
+      new lambdaEventSources.SqsEventSource(catalogItemsQueue, { batchSize: 5 })
+    )
   }
 }
