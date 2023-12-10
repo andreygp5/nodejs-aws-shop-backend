@@ -6,7 +6,7 @@ jest.mock('@aws-sdk/client-s3')
 jest.mock('@aws-sdk/s3-request-presigner', () => {
   return {
     getSignedUrl: () => {
-      return 'test-signed.xlsx'
+      return 'test-signed.csv'
     },
   }
 })
@@ -25,8 +25,8 @@ jest.mock('../utils', () => {
 describe('ImportProductsFile', () => {
   it('should generate signed url', async () => {
     const handlerResp = await importProductsFile({
-      queryStringParameters: { name: 'test.xlsx' },
+      queryStringParameters: { name: 'test.csv' },
     } as unknown as APIGatewayEvent)
-    expect(handlerResp).toEqual(buildResponse(200, 'test-signed.xlsx'))
+    expect(handlerResp).toEqual(buildResponse(200, 'test-signed.csv'))
   })
 })
