@@ -5,6 +5,7 @@ import { HttpMethod } from '@aws-cdk/aws-apigatewayv2-alpha'
 import { Construct } from 'constructs'
 import { HttpLambdaIntegration } from '@aws-cdk/aws-apigatewayv2-integrations-alpha'
 import * as s3 from 'aws-cdk-lib/aws-s3'
+import * as sqs from 'aws-cdk-lib/aws-sqs'
 import { Runtime } from 'aws-cdk-lib/aws-lambda'
 import { EnvironmentVariables } from '../src/interfaces'
 import { LambdaDestination } from 'aws-cdk-lib/aws-s3-notifications'
@@ -19,6 +20,15 @@ export class ImportServiceStack extends Stack {
       'aglazkov5-rs-aws-import-service'
     )
 
+    const catalogItemsQueue = sqs.Queue.fromQueueArn(
+      this,
+      'CatalogItemsQueue',
+      this.formatArn({
+        service: 'sqs',
+        resource: 'CatalogItemsQueue',
+      })
+    )
+
     const importProductsFileFunction = new lambdaNodeJs.NodejsFunction(
       this,
       'ImportProductsFileFunction',
@@ -31,8 +41,6 @@ export class ImportServiceStack extends Stack {
         handler: 'importProductsFile',
       }
     )
-
-    importServiceBucket.grantReadWrite(importProductsFileFunction)
 
     const importsApiGateway = new apiGateway.HttpApi(
       this,
@@ -60,6 +68,9 @@ export class ImportServiceStack extends Stack {
       'ImportFileParserFunction',
       {
         runtime: Runtime.NODEJS_18_X,
+        environment: {
+          QUEUE_NAME: catalogItemsQueue.queueUrl,
+        },
         entry: './src/handlers/importFileParser.ts',
         handler: 'importFileParser',
       }
@@ -72,7 +83,8 @@ export class ImportServiceStack extends Stack {
         prefix: 'uploaded/',
       }
     )
-
+    importServiceBucket.grantReadWrite(importProductsFileFunction)
     importServiceBucket.grantReadWrite(importFileParserFunction)
+    catalogItemsQueue.grantSendMessages(importFileParserFunction)
   }
 }

@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
+    "watch": "cdk watch",
     "test": "jest --roots product-service/src --config ../jest.config.js",
     "deploy": "cdk bootstrap && cdk deploy",
     "seed-product-db": "PRODUCT_TABLE_NAME='Product' STOCK_TABLE_NAME='Stock' ts-node --prefer-ts-exts ./src/product/scripts/product.seed.ts"
@@ -12,6 +12,8 @@
     "@types/lodash": "^4.14.202",
     "@types/uuid": "^9.0.7",
     "aws-cdk": "2.106.0",
+    "aws-sdk-client-mock": "^3.0.0",
+    "aws-sdk-client-mock-jest": "^3.0.0",
     "source-map-support": "^0.5.21",
     "ts-node": "^10.9.1",
     "typescript": "~5.2.2"
@@ -20,6 +22,7 @@
     "@aws-cdk/aws-apigatewayv2-alpha": "^2.110.0-alpha.0",
     "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.110.0-alpha.0",
     "@aws-sdk/client-dynamodb": "^3.454.0",
+    "@aws-sdk/client-sns": "^3.470.0",
     "@aws-sdk/lib-dynamodb": "^3.454.0",
     "@types/aws-lambda": "^8.10.126",
     "aws-cdk-lib": "2.106.0",

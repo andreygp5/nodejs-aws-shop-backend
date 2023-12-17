@@ -8,6 +8,13 @@ export const importProductsFile = async (event: APIGatewayEvent) => {
 
   try {
     const fileName = event.queryStringParameters?.['name']
+    if (!fileName?.endsWith('.csv')) {
+      return buildResponse(
+        400,
+        getErrorBody({ message: 'Incorrect file type' })
+      )
+    }
+
     const bucket = getEnvironmentVariables().BUCKET_NAME
 
     const client = new S3Client()
