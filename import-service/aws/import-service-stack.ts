@@ -1,4 +1,4 @@
-import { Stack, StackProps } from 'aws-cdk-lib'
+import { Duration, Stack, StackProps } from 'aws-cdk-lib'
 import * as lambdaNodeJs from 'aws-cdk-lib/aws-lambda-nodejs'
 import * as apiGateway from '@aws-cdk/aws-apigatewayv2-alpha'
 import { HttpMethod } from '@aws-cdk/aws-apigatewayv2-alpha'
@@ -9,6 +9,10 @@ import * as sqs from 'aws-cdk-lib/aws-sqs'
 import { Runtime } from 'aws-cdk-lib/aws-lambda'
 import { EnvironmentVariables } from '../src/interfaces'
 import { LambdaDestination } from 'aws-cdk-lib/aws-s3-notifications'
+import {
+  HttpLambdaAuthorizer,
+  HttpLambdaResponseType,
+} from '@aws-cdk/aws-apigatewayv2-authorizers-alpha'
 
 export class ImportServiceStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -54,6 +58,21 @@ export class ImportServiceStack extends Stack {
       }
     )
 
+    const basicAuthorizerFunction = lambdaNodeJs.NodejsFunction.fromFunctionArn(
+      this,
+      'BasicAuthorizerFunction',
+      'arn:aws:lambda:eu-central-1:881032671006:function:BasicAuthorizerFunction'
+    )
+
+    const basicAuthorizer = new HttpLambdaAuthorizer(
+      'BasicAuthorizer',
+      basicAuthorizerFunction,
+      {
+        responseTypes: [HttpLambdaResponseType.SIMPLE],
+        resultsCacheTtl: Duration.seconds(0),
+      }
+    )
+
     importsApiGateway.addRoutes({
       path: '/import',
       methods: [HttpMethod.GET],
@@ -61,6 +80,7 @@ export class ImportServiceStack extends Stack {
         'ImportProductsFileIntegration',
         importProductsFileFunction
       ),
+      authorizer: basicAuthorizer,
     })
 
     const importFileParserFunction = new lambdaNodeJs.NodejsFunction(
